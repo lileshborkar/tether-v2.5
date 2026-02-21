@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TETHER: Mindful Performance</title>
+    <style>
+        :root {
+            /* Palette: Deep Void & Electric Cyan */
+            --primary: #22d3ee;
+            --secondary: #a78bfa;
+            --glass: rgba(15, 23, 42, 0.90);
+            --glass-focus: rgba(10, 15, 30, 0.6);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            color: var(--text-main);
+            font-family: 'SF Mono', 'Roboto Mono', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(-45deg, #020617, #0f172a, #1e1b4b, #020617);
+            background-size: 400% 400%;
+            animation: deepBreath 20s ease infinite;
+        }
+
+        @keyframes deepBreath {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: 30px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 10;
+        }
+
+        body.focus-mode .glass-panel {
+            background: var(--glass-focus);
+            border-color: rgba(255, 255, 255, 0.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        body.focus-mode .controls-fade {
+            opacity: 0.1;
+            filter: grayscale(1);
+            pointer-events: none;
+            transition: all 0.6s ease;
+        }
+
+        body.focus-mode .controls-fade:hover {
+            opacity: 1;
+            filter: grayscale(0);
+            pointer-events: auto;
+        }
+
+        /* BRANDING */
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .title-text {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: white;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        body.focus-mode .title-text {
+            color: var(--primary);
+            text-shadow: 0 0 25px rgba(34, 211, 238, 0.6);
+            animation: pulseLight 4s ease-in-out infinite;
+        }
+
+        @keyframes pulseLight {
+            0% {
+                opacity: 1;
+                text-shadow: 0 0 25px rgba(34, 211, 238, 0.6);
+            }
+
+            50% {
+                opacity: 0.6;
+                text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+            }
+
+            100% {
+                opacity: 1;
+                text-shadow: 0 0 25px rgba(34, 211, 238, 0.6);
+            }
+        }
+
+        .meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        /* VISUAL CIRCLE & BREATH UI */
+        .circle-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 0 auto 25px;
+        }
+
+        svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            position: relative;
+            z-index: 2;
+        }
+
+        .bg-ring {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.03);
+            stroke-width: 6;
+        }
+
+        .progress-ring {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 6;
+            stroke-dasharray: 628;
+            stroke-dashoffset: 628;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 15px var(--primary));
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .time-display {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: 300;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            z-index: 5;
+            transition: 0.3s;
+        }
+
+        .candle-target {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.5s;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+            z-index: 5;
+        }
+
+        body.focus-mode .candle-target {
+            opacity: 1;
+        }
+
+        .breath-label {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            z-index: 6;
+            opacity: 0;
+            transition: opacity 0.3s, color 0.3s, text-shadow 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .breath-label.visible {
+            opacity: 1;
+        }
+
+        .ghost-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, transparent 20%, rgba(34, 211, 238, 0.2) 50%, rgba(34, 211, 238, 0.6) 100%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+            will-change: transform, opacity;
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.1);
+        }
+
+        /* CONTROLS */
+        .grid-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+            position: relative;
+            z-index: 20;
+        }
+
+        button {
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.7rem;
+            transition: all 0.3s;
+        }
+
+        #startBtn {
+            background: var(--primary);
+            color: #020617;
+            grid-column: span 2;
+            box-shadow: 0 0 25px rgba(34, 211, 238, 0.15);
+        }
+
+        #startBtn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 40px rgba(34, 211, 238, 0.4);
+        }
+
+        #stopBtn {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            grid-column: span 2;
+            display: none;
+        }
+
+        #stopBtn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        select {
+            grid-column: span 2;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            outline: none;
+            font-family: inherit;
+            cursor: pointer;
+            -webkit-appearance: none;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        select:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        option {
+            background-color: #0f172a;
+            color: white;
+        }
+
+        .section-label {
+            grid-column: span 2;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: left;
+            margin-top: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 5px;
+        }
+
+        .bio-toggle {
+            grid-column: span 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+
+        .bio-toggle.active {
+            background: rgba(167, 139, 250, 0.1);
+            border-color: rgba(167, 139, 250, 0.3);
+            color: var(--secondary);
+        }
+
+        .bio-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* MIXER */
+        .audio-mixer {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: relative;
+            z-index: 20;
+        }
+
+        .mix-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mix-label {
+            width: 90px;
+            text-align: left;
+        }
+
+        .preview-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--primary);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .preview-btn:hover {
+            background: var(--primary);
+            color: #020617;
+        }
+
+        /* SLIDERS */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+            flex-grow: 1;
+            cursor: pointer;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            margin-top: -5px;
+            border: 2px solid #0f172a;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.8);
+        }
+
+        #volMinute::-webkit-slider-thumb {
+            background: #64748b;
+        }
+
+        #volWarn::-webkit-slider-thumb {
+            background: #fbbf24;
+        }
+
+        #volFinish::-webkit-slider-thumb {
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            border: none;
+        }
+
+        /* NEW: Fix Slider Visibility for Noise */
+        #volNoise::-webkit-slider-thumb {
+            background: #f8fafc;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.5);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        .noise-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border: 1px solid transparent;
+            transition: 0.3s;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .noise-toggle:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .noise-toggle.active {
+            border-color: rgba(34, 211, 238, 0.3);
+            background: rgba(34, 211, 238, 0.05);
+            color: var(--primary);
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            background: #334155;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .noise-toggle.active .indicator {
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        #vizCanvas {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            opacity: 0.3;
+            z-index: 1;
+            pointer-events: none;
+            mask-image: linear-gradient(to top, black 20%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to top, black 20%, transparent 100%);
+        }
+
+        .icon-btn {
+            position: absolute;
+            top: 25px;
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            transition: 0.3s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+        }
+
+        .icon-btn:hover {
+            color: white;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        #fsBtn {
+            right: 25px;
+        }
+
+        #helpBtn {
+            left: 25px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .overlay.visible {
+            display: flex;
+            opacity: 1;
+        }
+
+        .help-content {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: 20px;
+            width: 600px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            text-align: left;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .help-content h2 {
+            color: white;
+            font-size: 1.5rem;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .help-content p {
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+        }
+
+        .guide-grid {
+            display: grid;
+            grid-template-columns: 30px 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: start;
+        }
+
+        .guide-icon {
+            font-size: 1.2rem;
+        }
+
+        .guide-text h4 {
+            color: var(--text-main);
+            margin: 0 0 5px 0;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .guide-text div {
+            font-size: 0.8rem;
+        }
+
+        .close-help {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button id="helpBtn" class="icon-btn" title="System Manual">?</button>
+    <button id="fsBtn" class="icon-btn" title="Toggle Fullscreen">⛶</button>
+
+    <div id="helpOverlay" class="overlay">
+        <div class="help-content">
+            <button class="close-help" id="closeHelp">×</button>
+            <h2><span style="color:var(--primary)">TETHER OPERATING MANUAL</span></h2>
+            <p style="border-bottom: 1px solid var(--border); padding-bottom: 15px;">
+                <strong>PURPOSE:</strong> Tether is a cybernetic grounding tool designed to <span
+                    style="color:var(--primary)">prevent cognitive spiraling</span>. It synchronizes your nervous system
+                with market time, anchoring your attention to the present moment ("Zero Point") through precise
+                audio-visual cues.
+            </p>
+            <div class="guide-grid">
+                <div class="guide-icon">📊</div>
+                <div class="guide-text">
+                    <h4>1. Candle Synchronization</h4>
+                    <div>Select your trading timeframe (<strong>TIMEFRAME</strong>). The timer does not just countdown;
+                        it aligns with the <strong>Global Candle Close</strong>.</div>
+                </div>
+            </div>
+            <div class="guide-grid">
+                <div class="guide-icon">🫁</div>
+                <div class="guide-text">
+                    <h4>2. Bio-Sync Breathing</h4>
+                    <div>Active regulation of internal state. Enable the <strong>ASSISTANT</strong> to activate:
+                        <ul style="margin: 5px 0 0 -15px;">
+                            <li><strong>Ghost Ring</strong>: Expands/Contracts with breath.</li>
+                            <li><strong>Command Text</strong>: Explicit instructions (INHALE/HOLD).</li>
+                            <li><strong>Focus Shield</strong>: Brown noise modulates (Ocean Breath).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="guide-grid">
+                <div class="guide-icon">🎚️</div>
+                <div class="guide-text">
+                    <h4>3. Sonic Anchors</h4>
+                    <div>Procedural cues keep you lucid:
+                        <ul style="margin: 5px 0 0 -15px;">
+                            <li><strong>Minute Beep</strong>: Check-in every 60s.</li>
+                            <li><strong>Alert (Yellow)</strong>: Warning 5s before close.</li>
+                            <li><strong>Shield</strong>: Brown noise masking coverage.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="glass-panel">
+        <div class="brand-header">
+            <div class="title-text">TETHER</div>
+        </div>
+
+        <div class="meta">
+            Target: <span id="lblTime" style="color:white">5</span> min
+            <span style="margin: 0 10px;">|</span>
+            Cycles: <span id="lblCount" style="color:white">0</span>
+        </div>
+
+        <div class="circle-container">
+            <div id="ghostRing" class="ghost-ring"></div>
+            <div id="breathTxt" class="breath-label">READY</div>
+            <svg viewBox="0 0 220 220">
+                <circle class="bg-ring" cx="110" cy="110" r="100"></circle>
+                <circle id="progRing" class="progress-ring" cx="110" cy="110" r="100"></circle>
+            </svg>
+            <div class="time-display" id="clock">00:00:00</div>
+            <div class="candle-target" id="closeTarget">CLOSE: --:--</div>
+        </div>
+
+        <div class="grid-controls">
+            <div class="section-label">TIME CONTROL</div>
+            <button id="startBtn">Initialize</button>
+            <button id="stopBtn">Terminate</button>
+
+            <select id="intervalSel">
+                <option value="1">1 MIN • SCALP</option>
+                <option value="3">3 MIN • SCALP</option>
+                <option value="5" selected>5 MIN • INTRADAY</option>
+                <option value="15">15 MIN • INTRADAY</option>
+                <option value="30">30 MIN • SWING</option>
+                <option value="60">60 MIN • H1 HOURLY</option>
+                <option value="240">4 HR • H4 TREND</option>
+            </select>
+
+            <div class="section-label" style="margin-top:20px">BIO-SYNC BREATHING</div>
+            <div class="bio-toggle" id="bioBtn">
+                <span>ENABLE ASSISTANT</span>
+                <div class="indicator"></div>
+            </div>
+            <select id="breathSel" style="display:none; animation: fadeIn 0.3s">
+                <option value="box">BOX • 4-4-4-4 (FOCUS)</option>
+                <option value="relax">RELAX • 4-7-8 (CALM)</option>
+                <option value="cohere">COHERENCE • 5.5-5.5 (HRV)</option>
+                <option value="energy">ENERGY • 4-2 (ALERTS)</option>
+            </select>
+        </div>
+
+        <canvas id="vizCanvas"></canvas>
+
+        <div class="audio-mixer controls-fade">
+            <div class="mix-group">
+                <span class="mix-label">Min Beep</span>
+                <input type="range" id="volMinute" min="0" max="1" step="0.05">
+                <button class="preview-btn" data-type="0">🔊</button>
+            </div>
+            <div class="mix-group">
+                <span class="mix-label">Alert</span>
+                <input type="range" id="volWarn" min="0" max="1" step="0.05">
+                <button class="preview-btn" data-type="1">🔊</button>
+            </div>
+            <div class="mix-group">
+                <span class="mix-label">Success</span>
+                <input type="range" id="volFinish" min="0" max="1" step="0.05">
+                <button class="preview-btn" data-type="2">🔊</button>
+            </div>
+            <div style="margin-top: 10px;">
+                <div class="noise-toggle" id="noiseBtn">
+                    <span>Focus Shield (Brown Noise)</span>
+                    <div class="indicator"></div>
+                </div>
+                <div class="mix-group" style="margin-top: 15px;">
+                    <span class="mix-label">Shield</span>
+                    <input type="range" id="volNoise" min="0" max="1" step="0.05">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORE_KEYS = { min: 'dp_vol_min', warn: 'dp_vol_warn', fin: 'dp_vol_fin', noise: 'dp_vol_noise', int: 'dp_interval', cycles: 'dp_cycles_total_v2' };
+        const DEFAULTS = { min: '0.3', warn: '0.4', fin: '0.7', noise: '0.5', int: '5' };
+
+        const BREATH_PATTERNS = {
+            box: { in: 4, h1: 4, ex: 4, h2: 4 },
+            relax: { in: 4, h1: 7, ex: 8, h2: 0 },
+            cohere: { in: 5.5, h1: 0, ex: 5.5, h2: 0 },
+            energy: { in: 4, h1: 0, ex: 2, h2: 0 }
+        };
+
+        const wBlob = new Blob([`setInterval(()=>postMessage('t'),100)`], { type: 'text/javascript' });
+        const worker = new Worker(URL.createObjectURL(wBlob));
+
+        let ctx, noiseOut, analyser, dataArray, noiseNode, lpfNode;
+        let noiseRunning = false;
+        let isRunning = false;
+        let bioActive = false;
+
+        let breathStartTime = 0;
+        let breathRafId = null;
+
+        let durationMins = 5;
+        let cycles = 0;
+        let lastMin = -1, lastSec = -1;
+
+        let vizCtx, vizCanvas;
+
+        const ui = {
+            clk: document.getElementById('clock'),
+            ring: document.getElementById('progRing'),
+            ghost: document.getElementById('ghostRing'),
+            bTxt: document.getElementById('breathTxt'),
+            start: document.getElementById('startBtn'),
+            stop: document.getElementById('stopBtn'),
+            sel: document.getElementById('intervalSel'),
+            lblT: document.getElementById('lblTime'),
+            lblC: document.getElementById('lblCount'),
+            vMin: document.getElementById('volMinute'),
+            vWarn: document.getElementById('volWarn'),
+            vFin: document.getElementById('volFinish'),
+            vNoise: document.getElementById('volNoise'),
+            nBtn: document.getElementById('noiseBtn'),
+            bioBtn: document.getElementById('bioBtn'),
+            breathSel: document.getElementById('breathSel'),
+            fs: document.getElementById('fsBtn'),
+            help: document.getElementById('helpBtn'),
+            closeHelp: document.getElementById('closeHelp'),
+            overlay: document.getElementById('helpOverlay'),
+            target: document.getElementById('closeTarget'),
+            cvs: document.getElementById('vizCanvas')
+        };
+
+        // --- AUDIO ENGINE ---
+        const initAudio = () => {
+            // Return promise to ensure resume finishes
+            return new Promise((resolve) => {
+                if (!ctx) {
+                    ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = ctx.createAnalyser();
+                    analyser.fftSize = 2048;
+                    dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                    noiseOut = ctx.createGain();
+                    noiseOut.connect(analyser);
+                    analyser.connect(ctx.destination);
+                    noiseOut.gain.value = ui.vNoise.value;
+
+                    vizCanvas = ui.cvs;
+                    vizCtx = vizCanvas.getContext('2d');
+                    resizeViz();
+                    drawViz();
+                }
+
+                if (ctx.state === 'suspended') {
+                    ctx.resume().then(() => resolve());
+                } else {
+                    resolve();
+                }
+            });
+        };
+
+        const drawViz = () => {
+            requestAnimationFrame(drawViz);
+            if (!ctx || !analyser) return;
+            analyser.getByteTimeDomainData(dataArray);
+            vizCtx.fillStyle = 'rgba(15, 23, 42, 0.3)';
+            vizCtx.fillRect(0, 0, vizCanvas.width, vizCanvas.height);
+            vizCtx.lineWidth = 2; vizCtx.strokeStyle = '#22d3ee'; vizCtx.beginPath();
+            const sliceWidth = vizCanvas.width * 1.0 / dataArray.length;
+            let x = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                const v = dataArray[i] / 128.0; const y = v * (vizCanvas.height / 2);
+                if (i === 0) vizCtx.moveTo(x, y); else vizCtx.lineTo(x, y);
+                x += sliceWidth;
+            }
+            vizCtx.lineTo(vizCanvas.width, vizCanvas.height / 2); vizCtx.stroke();
+        };
+        const resizeViz = () => { if (vizCanvas) { vizCanvas.width = vizCanvas.offsetWidth; vizCanvas.height = vizCanvas.offsetHeight; } };
+        window.onresize = resizeViz;
+
+        const playChime = async (type) => {
+            await initAudio();
+            const t = ctx.currentTime;
+            let userVolume = 0;
+            const chimeMix = ctx.createGain();
+            chimeMix.connect(analyser); chimeMix.gain.value = 1.0;
+
+            if (type === 0) { // Minute Beep
+                userVolume = parseFloat(ui.vMin.value);
+                const osc = ctx.createOscillator(); const g = ctx.createGain();
+                osc.frequency.value = 660;
+                g.gain.setValueAtTime(0, t);
+                g.gain.linearRampToValueAtTime(userVolume, t + 0.05);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+                osc.connect(g); g.connect(chimeMix);
+                osc.start(); osc.stop(t + 0.1);
+            } else if (type === 1) { // Alert
+                userVolume = parseFloat(ui.vWarn.value);
+                const osc = ctx.createOscillator(); const g = ctx.createGain();
+                osc.type = 'triangle'; osc.frequency.value = 440;
+                g.gain.setValueAtTime(0, t);
+                g.gain.linearRampToValueAtTime(userVolume, t + 0.02);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+                osc.connect(g); g.connect(chimeMix);
+                osc.start(); osc.stop(t + 0.15);
+            } else if (type === 2) { // Completion (Gong)
+                userVolume = parseFloat(ui.vFin.value);
+                const freqs = [200, 202, 400];
+                freqs.forEach((f, i) => {
+                    const osc = ctx.createOscillator(); const g = ctx.createGain();
+                    osc.type = 'sine'; osc.frequency.value = f;
+                    g.gain.setValueAtTime(0, t);
+                    g.gain.linearRampToValueAtTime(userVolume * (1 - (i * 0.2)), t + 0.2);
+                    g.gain.exponentialRampToValueAtTime(0.001, t + 4.0);
+                    osc.connect(g); g.connect(chimeMix);
+                    osc.start(); osc.stop(t + 4.0);
+                });
+            }
+        };
+
+        const toggleNoise = async () => {
+            await initAudio();
+            noiseRunning = !noiseRunning;
+            ui.nBtn.classList.toggle('active', noiseRunning);
+
+            if (noiseRunning) {
+                const bSize = ctx.sampleRate * 2;
+                const buf = ctx.createBuffer(1, bSize, ctx.sampleRate);
+                const d = buf.getChannelData(0);
+                let lastOut = 0;
+                for (let i = 0; i < bSize; i++) {
+                    const w = Math.random() * 2 - 1; lastOut = (lastOut + (0.02 * w)) / 1.02; d[i] = lastOut * 3.5;
+                }
+                noiseNode = ctx.createBufferSource(); noiseNode.buffer = buf; noiseNode.loop = true;
+                lpfNode = ctx.createBiquadFilter(); lpfNode.type = 'lowpass'; lpfNode.frequency.value = 300;
+                noiseNode.connect(lpfNode); lpfNode.connect(noiseOut); noiseNode.start();
+            } else {
+                if (noiseNode) { noiseNode.stop(); noiseNode.disconnect(); }
+            }
+        };
+
+        const toggleBio = async () => {
+            await initAudio();
+            bioActive = !bioActive;
+            ui.bioBtn.classList.toggle('active', bioActive);
+            ui.breathSel.style.display = bioActive ? 'block' : 'none';
+            ui.bTxt.classList.toggle('visible', bioActive);
+            ui.ghost.style.opacity = bioActive ? 0.2 : 0;
+            if (bioActive) {
+                breathStartTime = Date.now();
+                runBreathLoop();
+            } else {
+                cancelAnimationFrame(breathRafId);
+                if (lpfNode) lpfNode.frequency.setValueAtTime(300, ctx.currentTime);
+                ui.ghost.style.transform = `translate(-50%, -50%) scale(0.8)`;
+            }
+        };
+
+        // --- BREATH LOOP ---
+        const runBreathLoop = () => {
+            if (!bioActive) return;
+            breathRafId = requestAnimationFrame(runBreathLoop);
+            const now = Date.now();
+            const p = BREATH_PATTERNS[ui.breathSel.value];
+            const totalMs = (p.in + p.h1 + p.ex + p.h2) * 1000;
+            const elapsed = (now - breathStartTime) % totalMs;
+            const tSec = elapsed / 1000;
+            let phase = '', timeLeft = 0, progress = 0;
+
+            if (tSec < p.in) { // INHALE
+                phase = 'INHALE'; timeLeft = Math.ceil(p.in - tSec); progress = tSec / p.in;
+                setGhostState(0.8 + (0.6 * progress), 0.1 + (0.7 * progress), '#22d3ee');
+                setAudioFilter(200 + (600 * progress));
+                ui.bTxt.style.color = '#22d3ee'; ui.bTxt.style.textShadow = '0 0 20px rgba(34, 211, 238, 0.6)';
+            } else if (tSec < (p.in + p.h1)) { // HOLD 1
+                phase = 'HOLD'; const localT = tSec - p.in; timeLeft = Math.ceil(p.h1 - localT);
+                const pulse = Math.sin(Date.now() / 200) * 0.05;
+                setGhostState(1.4 + pulse, 0.8, '#ffffff'); setAudioFilter(800);
+                ui.bTxt.style.color = '#ffffff'; ui.bTxt.style.textShadow = '0 0 20px rgba(255, 255, 255, 0.8)';
+            } else if (tSec < (p.in + p.h1 + p.ex)) { // EXHALE
+                phase = 'EXHALE'; const localT = tSec - (p.in + p.h1); timeLeft = Math.ceil(p.ex - localT); progress = localT / p.ex;
+                setGhostState(1.4 - (0.6 * progress), 0.8 - (0.6 * progress), '#a78bfa');
+                setAudioFilter(800 - (600 * progress));
+                ui.bTxt.style.color = '#a78bfa'; ui.bTxt.style.textShadow = '0 0 20px rgba(167, 139, 250, 0.5)';
+            } else { // HOLD 2
+                phase = 'WAIT'; const localT = tSec - (p.in + p.h1 + p.ex); timeLeft = Math.ceil(p.h2 - localT);
+                setGhostState(0.8, 0.2, '#64748b'); setAudioFilter(200);
+                ui.bTxt.style.color = '#64748b'; ui.bTxt.style.textShadow = 'none';
+            }
+            ui.bTxt.innerText = `${phase} (${timeLeft})`;
+        };
+
+        const setGhostState = (scale, opacity, color) => {
+            ui.ghost.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            ui.ghost.style.opacity = opacity;
+            ui.ghost.style.background = `radial-gradient(circle, transparent 20%, ${color}20 50%, ${color}60 100%)`;
+            ui.ghost.style.boxShadow = `0 0 30px ${color}30`;
+        };
+        const setAudioFilter = (freq) => { if (lpfNode && noiseRunning) lpfNode.frequency.setValueAtTime(freq, ctx.currentTime); };
+
+        // UI Event Listeners
+        ui.bioBtn.onclick = toggleBio;
+        ui.breathSel.onchange = () => { if (bioActive) breathStartTime = Date.now(); };
+        ui.start.onclick = () => { isRunning = !isRunning; updateRunState(); };
+        ui.stop.onclick = () => { isRunning = !isRunning; updateRunState(); };
+        ui.nBtn.onclick = toggleNoise;
+        ui.fs.onclick = () => !document.fullscreenElement ? document.documentElement.requestFullscreen() : document.exitFullscreen();
+
+        // Preview Buttons
+        document.querySelectorAll('.preview-btn').forEach(btn => {
+            btn.onclick = () => {
+                const type = parseInt(btn.getAttribute('data-type'));
+                playChime(type);
+            };
+        });
+
+        // Help
+        const toggleHelp = () => { ui.overlay.classList.toggle('visible'); };
+        ui.help.onclick = toggleHelp; ui.closeHelp.onclick = toggleHelp;
+        ui.overlay.onclick = (e) => { if (e.target === ui.overlay) toggleHelp(); };
+
+        const updateRunState = () => {
+            document.body.classList.toggle('focus-mode', isRunning);
+            if (isRunning) {
+                initAudio(); ui.start.style.display = 'none'; ui.stop.style.display = 'block'; ui.sel.disabled = true;
+            } else { ui.start.style.display = 'block'; ui.stop.style.display = 'none'; ui.sel.disabled = false; }
+        };
+
+        worker.onmessage = () => {
+            const d = new Date();
+            const s = d.getSeconds(); const m = d.getMinutes(); const h = d.getHours();
+            ui.clk.innerText = d.toLocaleTimeString([], { hour12: false });
+            const totalDayMinutes = (h * 60) + m;
+            const minIntoInterval = totalDayMinutes % durationMins;
+            const secIntoInterval = (minIntoInterval * 60) + s;
+            ui.ring.style.strokeDashoffset = 628 - ((secIntoInterval / (durationMins * 60)) * 628);
+            const minsRemaining = durationMins - minIntoInterval;
+            const targetDate = new Date(d.getTime() + (minsRemaining * 60 * 1000 - s * 1000));
+            ui.target.innerText = `CLOSE: ${targetDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+            if (!isRunning) return;
+            const isFreshStart = (minIntoInterval === 0 && s === 0);
+            if (isFreshStart) {
+                playChime(2); cycles++; ui.lblC.innerText = cycles; localStorage.setItem(STORE_KEYS.cycles, cycles);
+            } else if (s === 0 && m !== lastMin) {
+                playChime(0); lastMin = m;
+            }
+            if (s > 0) lastMin = -1;
+            if ((minIntoInterval === durationMins - 1) && s >= 55 && s !== lastSec) {
+                playChime(1); lastSec = s;
+            }
+            if (s < 55) lastSec = -1;
+        };
+
+        const loadSettings = () => {
+            ui.vMin.value = localStorage.getItem(STORE_KEYS.min) || DEFAULTS.min;
+            ui.vWarn.value = localStorage.getItem(STORE_KEYS.warn) || DEFAULTS.warn;
+            ui.vFin.value = localStorage.getItem(STORE_KEYS.fin) || DEFAULTS.fin;
+            ui.vNoise.value = localStorage.getItem(STORE_KEYS.noise) || DEFAULTS.noise;
+            cycles = parseInt(localStorage.getItem(STORE_KEYS.cycles) || '0');
+            ui.lblC.innerText = cycles;
+            const savedInt = localStorage.getItem(STORE_KEYS.int);
+            if (savedInt) { ui.sel.value = savedInt; durationMins = parseInt(savedInt); ui.lblT.innerText = durationMins; }
+        };
+        ui.vMin.oninput = (e) => localStorage.setItem(STORE_KEYS.min, e.target.value);
+        ui.vWarn.oninput = (e) => localStorage.setItem(STORE_KEYS.warn, e.target.value);
+        ui.vFin.oninput = (e) => localStorage.setItem(STORE_KEYS.fin, e.target.value);
+        ui.vNoise.oninput = (e) => { localStorage.setItem(STORE_KEYS.noise, e.target.value); if (noiseOut) noiseOut.gain.setTargetAtTime(e.target.value, ctx.currentTime, 0.1); };
+        ui.sel.onchange = (e) => { durationMins = parseInt(e.target.value); ui.lblT.innerText = durationMins; localStorage.setItem(STORE_KEYS.int, durationMins); };
+
+        window.onload = loadSettings;
+    </script>
+</body>
+
+</html>
