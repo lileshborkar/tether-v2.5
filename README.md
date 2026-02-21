@@ -66,4 +66,4 @@ Subtle, rhythmic vibrations on mobile devices act as physical anchors for your f
 3. For PWA installation, serve the folder via local server or host on GitHub Pages.
 
 ---
-*Created with focus by [Your Name/GitHub Handle]*
+*Created with focus by [Lilesh Borkar](https://github.com/lileshborkar)*
