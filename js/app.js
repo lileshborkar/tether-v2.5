@@ -21,9 +21,9 @@ const STORE_KEYS = {
 
 const DEFAULTS = {
     int: 5,
-    min: 0.3,
-    warn: 0.5,
-    fin: 0.6,
+    min: 0.2,
+    warn: 0.1,
+    fin: 0.1,
     noise: 0.2,
     noise2: 0.1,
     pings: 0.2,
