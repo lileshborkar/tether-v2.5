@@ -1,0 +1,11 @@
+# Backups
+index - Copy*.html
+
+# OS Metadata
+.DS_Store
+Thumbs.db
+
+# Gemini/AI Metadata
+.gemini/
+brain/
+*.log

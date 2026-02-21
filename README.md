@@ -1,36 +1,67 @@
-# TETHER
-> **Mindful Performance & Focusing Tool**
+# TETHER v2.5: Mindful Performance Ecosystem 🌀
 
-**TETHER** is a cybernetic grounding tool designed to prevent cognitive spiraling. It synchronizes your nervous system with market time, anchoring your attention to the present moment ("Zero Point") through precise audio-visual cues.
+TETHER is a high-precision focus application designed to synchronize biological rhythms with deep-work cycles. It combines minimalist aesthetics with sophisticated audio-visual anchors to help you achieve and maintain a state of flow.
 
-## Interface Preview
-![Tether Main Interface](tether_preview.png)
+![TETHER Hero Preview](tether_preview.png)
 
-## Operating Manual
-![Tether Help Guide](tether_help.png)
+## 🚀 Version 2.5 Highlights
 
-## Core Modules
+### 📱 Full PWA Support (Installable)
+TETHER is a high-performance **Progressive Web App** designed for seamless desktop and mobile use.
+- **iOS/Android**: "Add to Home Screen" to run TETHER as a standalone, fullscreen app.
+- **Offline Ready**: Works anywhere, even without an internet connection.
+- **Custom Branding**: Features a sharp, fiber-optic rope-themed icon representing your lifeline to focus.
 
-### 1. Candle Synchronization
-Unlike standard timers, Tether aligns with the **Global Candle Close**. 
-- If you select **5 MIN** at `10:02`, the timer targets `10:05`, not `10:07`.
-- This keeps you perfectly synced with the market rhythm.
+![Mobile Interface](tether_mobile_preview.png)
 
-### 2. Bio-Sync Breathing Assistant
-An active regulation system for your internal state.
-- **Ghost Ring**: A subtle visual guide that expands and contracts.
-- **Command Text**: Explicit "INHALE / HOLD" instructions inside the ring.
-- **Audio Modulation**: The brown noise "Focus Shield" brightens on inhale and muffles on exhale, creating an immersive "Ocean Breath" effect.
+### 🎨 Multi-Theme Visuals
+Personalize your focus environment with four bespoke thematic presets:
+- **Cyan**: Classic electric void.
+- **Solar**: High-energy golden glow.
+- **Void**: Deep indigo and pink atmosphere.
+- **Moss**: Soothing bio-luminescent mint.
 
-### 3. Sonic Anchors
-Procedural audio cues allow you to stay lucid without constant screen checking.
-- **Minute Beep**: A subtle check-in every 60s.
-- **Alert (Yellow)**: Warning 5s before candle close.
-- **Focus Shield (Brown Noise)**: A masking layer to block external distractions.
+### 🎙️ Dual-Layer Sound Mixing
+The **AMBIENCE** tab now supports parallel soundscapes. Blend **Deep Brown Noise** with **Soft Rain** or **Ocean Waves** for the ultimate focus shield.
 
-## Usage
-Simply open `index.html` in any modern web browser (Chrome, Edge, Safari).
-No installation required.
+### 📊 Session Intelligence
+Track your progress with the expanded **STATS** dashboard:
+- Lifetime focused minutes and completed cycles.
+- Persistent local storage ensures your data stays with you.
+
+![Stats Dashboard](tether_stats.png)
+
+### 🧩 Personalized Flows
+Capture your perfect focus environment with **Presets**. Save your audio levels, visual themes, and breathing patterns for instant one-click recall.
+
+![Presets Management](tether_presets.png)
+
+### 📳 Tactile Haptics
+Subtle, rhythmic vibrations on mobile devices act as physical anchors for your focus cycles and minute markers.
+
+## 🛠️ Tech Stack
+- **Engine**: Vanilla JavaScript (ES6+)
+- **Audio**: Web Audio API (Dual-layer oscillators & custom noise generators)
+- **Visuals**: HTML5 Canvas & CSS3 Transitions
+- **PWA**: Service Workers & Web App Manifest
+
+## ⌨️ Global Commands
+| Key | Action |
+|-----|--------|
+| `SPACE` / `CLICK CLOCK` | Initialize / Terminate Session |
+| `B` | Toggle Breath Sync |
+| `A` | Toggle Focus Ambience (ARM/DISARM) |
+| `P` | Pulse Toggle |
+| `F` | Fullscreen Mode |
+| `S` | Settings Hub |
+| `H` | Help / Manual |
+
+![Help & Manual](tether_help.png)
+
+## 📦 Local Setup
+1. Clone this repository.
+2. Open `index.html` in any modern browser.
+3. For PWA installation, serve the folder via local server or host on GitHub Pages.
 
 ---
-*Built for High-Performance Trading*
+*Created with focus by [Your Name/GitHub Handle]*
