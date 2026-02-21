@@ -1,5 +1,7 @@
 # TETHER v2.5: Mindful Performance Ecosystem 🌀
 
+[**Live Application**](https://lileshborkar.github.io/tether-v2.5/)
+
 TETHER is a high-precision focus application designed to synchronize biological rhythms with deep-work cycles. It combines minimalist aesthetics with sophisticated audio-visual anchors to help you achieve and maintain a state of flow.
 
 ![TETHER Hero Preview](tether_preview.png)
