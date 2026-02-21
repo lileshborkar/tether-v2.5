@@ -3,7 +3,11 @@
 
 **TETHER** is a cybernetic grounding tool designed to prevent cognitive spiraling. It synchronizes your nervous system with market time, anchoring your attention to the present moment ("Zero Point") through precise audio-visual cues.
 
-![Tether Preview](tether_preview.png)
+## Interface Preview
+![Tether Main Interface](tether_preview.png)
+
+## Operating Manual
+![Tether Help Guide](tether_help.png)
 
 ## Core Modules
 
